@@ -335,6 +335,7 @@ static const struct {
 #ifndef __VMS
   { "useaskpass" ,      &opt.use_askpass,       cmd_use_askpass },
 #endif
+  { "uselocalcache",  &opt.use_local_cache,   cmd_boolean },
   { "useproxy",         &opt.use_proxy,         cmd_boolean },
   { "user",             &opt.user,              cmd_string },
   { "useragent",        NULL,                   cmd_spec_useragent },
@@ -512,6 +513,7 @@ defaults (void)
 #endif
 
   opt.enable_xattr = false;
+  opt.use_local_cache = true;
 }
 
 /* Return the user's home directory (strdup-ed), or NULL if none is

@@ -346,6 +346,8 @@ struct options
 
   const char *homedir;          /* the homedir of the running process */
   const char *wgetrcfile;       /* the wgetrc file to be loaded */
+
+  bool use_local_cache;
 };
 
 extern struct options opt;
