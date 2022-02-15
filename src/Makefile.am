@@ -59,7 +59,7 @@ wget_SOURCES = connect.c convert.c cookies.c ftp.c	\
 		http.h http-ntlm.h init.h log.h mswindows.h netrc.h	\
 		options.h progress.h ptimer.h recur.h res.h retr.h	\
 		spider.h ssl.h sysdep.h url.h warc.h utils.h wget.h iri.h	\
-		exits.h version.h metalink.h xattr.h
+		exits.h version.h metalink.h xattr.h local_cache_utils.c
 nodist_wget_SOURCES = version.c
 EXTRA_wget_SOURCES = iri.c metalink.c xattr.c
 LDADD = $(CODE_COVERAGE_LIBS) $(LIBOBJS) ../lib/libgnu.a $(GETADDRINFO_LIB) $(HOSTENT_LIB)\

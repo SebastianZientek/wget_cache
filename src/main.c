@@ -48,6 +48,7 @@ as that of the covered work.  */
 #include "retr.h"
 #include "recur.h"
 #include "host.h"
+#include "local_cache_utils.h"
 #include "url.h"
 #include "progress.h"           /* for progress_handle_sigwinch */
 #include "convert.h"
@@ -1358,52 +1359,10 @@ const char *program_argstring; /* Needed by wget_warc.c. */
 struct ptimer *timer;
 int cleaned_up;
 
-int copy_file(char  *dest_name, char *src_name)
-{
-		FILE  *f_src, *f_dest;
-
-		f_src = fopen(src_name, "rb");
-		f_dest = fopen(dest_name, "wb");
-
-		if(f_src == NULL)
-    {
-      printf("A Copying file error: %s -> %s\n",  src_name, dest_name);
-			return  -1;
-    }
-
-		if(f_dest == NULL)
-		{
-      printf("B Copying file error: %s -> %s\n",  src_name, dest_name);
-			fclose(f_src);
-			return  -1;
-		}
-
-		while(1)
-		{
-			int d = fgetc(f_src);
-
-			if(!feof(f_src))
-      {
-				fputc(d, f_dest);
-      }
-			else
-      {
-				break;
-      }
-		}
-
-		fclose(f_dest);
-		fclose(f_src);
-		return  0;
-}
 
 int
 main (int argc, char **argv)
 {
-  // for (int i = 0; i < argc; ++i)
-  // {
-  //   printf(">>>> %s\n", argv[i]);
-  // }
   char *p;
   int i, ret, longindex;
   int nurls;
@@ -2213,60 +2172,36 @@ only if outputting to a regular file.\n"));
             }
           else
             {
-              char *output_file_name = opt.output_document ? opt.output_document : url_parsed->file;
-              char *cached_txt_file_name;
-              char *cached_file;
+              if (is_caching_allowed())
               {
-                unsigned char obuf[16];
-                unsigned char str_md5[17];
-                str_md5[16] = 0;
-                MD5(url_parsed->url, strlen(url_parsed->url), obuf);
-                for (int i = 0, j = 0; i < 16; i++, j+=2)
-                  sprintf(str_md5+j, "%02x", obuf[i]);
+                char *output_file_name = opt.output_document ? opt.output_document : url_parsed->file;
+                char *cache_dir = cache_directory_for_url(url_parsed->url);
+                char *cached_txt_file_name = ajoin_dir_file(cache_dir, "url.txt");
+                char *cached_file = ajoin_dir_file(cache_dir, url_parsed->file);
 
-                char *cached_directory = ajoin_dir_file(opt.homedir, ".cached_wget");
+                if (file_exists_p(cached_file, NULL))
                 {
-                  struct stat st = {0};
-                  if (stat(cached_directory, &st) == -1) {
-                    mkdir(cached_directory, 0700);
-                  }
+                  printf("COPY FROM CACHE: %s -> %s\n", cached_file, output_file_name);
+                  copy_file(output_file_name, cached_file);
                 }
-
-                char *cached_md5_dir = ajoin_dir_file(cached_directory, str_md5);
+                else
                 {
-                  struct stat st = {0};
-                  if (stat(cached_md5_dir, &st) == -1) {
-                    mkdir(cached_md5_dir, 0700);
-                  }
+                  retrieve_url (url_parsed, t, &filename, &redirected_URL, NULL,
+                    &dt, opt.recursive, iri, true);
+
+                  printf("SAVED IN CACHE: %s -> %s\n", output_file_name, cached_file);
+                  if (!opt.spider)
+                    copy_file(cached_file, output_file_name);
+
+                  FILE *txt_file = fopen(cached_txt_file_name, "w");
+                  fprintf(txt_file, "%s\n", url_parsed->url);
+                  fclose(txt_file);
                 }
-
-                cached_txt_file_name = ajoin_dir_file(cached_md5_dir, "url.txt");
-                cached_file = ajoin_dir_file(cached_md5_dir, url_parsed->file);
-              }
-
-              if (opt.output_document && strcmp(opt.output_document, "-") == 0)
-              {
-                retrieve_url (url_parsed, t, &filename, &redirected_URL, NULL,
-                  &dt, opt.recursive, iri, true); 
-              }
-              else if (file_exists_p(cached_file, NULL) && opt.use_local_cache && !opt.spider)
-              {
-                printf("EXIST IN CACHE, COPYING: %s -> %s\n", cached_file, output_file_name);
-                copy_file(output_file_name, cached_file);
               }
               else
               {
-                printf("NOT EXISTS IN CACHE, DOWNLOADING\n");
                 retrieve_url (url_parsed, t, &filename, &redirected_URL, NULL,
                   &dt, opt.recursive, iri, true);
-
-                printf("SAVE IN CACHE: %s -> %s\n", output_file_name, cached_file);
-                if (!opt.spider)
-                  copy_file(cached_file, output_file_name);
-
-                FILE *txt_file = fopen(cached_txt_file_name, "w");
-                fprintf(txt_file, "%s\n", url_parsed->url);
-                fclose(txt_file);
               }
             }
 
