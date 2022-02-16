@@ -1259,7 +1259,7 @@ print_version (void)
   char *env_wgetrc, *user_wgetrc;
   int i;
 
-  if (printf (_("GNU Wget %s built on %s.\n\n"), version_string, OS_TYPE) < 0)
+  if (printf (_("GNU Wget [cache modification] %s built on %s.\n\n"), version_string, OS_TYPE) < 0)
     exit (WGET_EXIT_IO_FAIL);
 
   for (i = 0; compiled_features[i] != NULL; )
