@@ -52,6 +52,7 @@ char *cache_directory_for_url(char *url)
       mkdir(cached_md5_dir, 0700);
     }
   }
+  xfree(cached_directory);
 
   return cached_md5_dir;
 }

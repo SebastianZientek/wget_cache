@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Extremely primitive test case
+
 TEST_URL=https://ftp.gnu.org/gnu/wget/wget-1.9.1.tar.gz.sig
 CACHE_DIR=/home/sebastian/.cached_wget
 

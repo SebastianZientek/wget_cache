@@ -65,7 +65,6 @@ as that of the covered work.  */
 #include <getpass.h>
 #include <quote.h>
 
-#include <openssl/md5.h>
 
 #ifdef TESTING
 /* Rename the main function so we can have a main() in fuzzing code
@@ -2113,9 +2112,6 @@ only if outputting to a regular file.\n"));
     load_hsts ();
 #endif
 
-
-
-
   /* Retrieve the URLs from argument list.  */
   for (i = 0; i < nurls; i++, optind++)
     {
@@ -2197,6 +2193,10 @@ only if outputting to a regular file.\n"));
                   fprintf(txt_file, "%s\n", url_parsed->url);
                   fclose(txt_file);
                 }
+
+                xfree(cache_dir);
+                xfree(cached_txt_file_name);
+                xfree(cached_file);
               }
               else
               {
