@@ -11,6 +11,8 @@ File downloaded for first time will be copied to
 
 Each subsequent attempt to download file from the same url will copy it from cache instead of downloading again.
 
+Additionally for each cached file you will find file `url.txt` (`<home directory>/.cached_wget/<md5_of_url>/url.txt`). The file contains url related to the cached file.
+
 # How to build
 ```
 $ git clone https://github.com/bleakdev/wget_cache.git
@@ -23,7 +25,7 @@ $ make -j8
 Prepared binary will be located under `src` directory.
 
 # How to use
-I do not recommend to install that modification as default version of wget. If you need use it as default, you can always add it to your PATH variable.
+I do not recommend to install that modification as replacement of official wget. If you need use it as default, you can always add it to your PATH variable.
 
 For example add in your .bashrc
 ```
